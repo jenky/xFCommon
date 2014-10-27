@@ -43,4 +43,16 @@ class Milano_Common_Composer
 		chdir($composerDir);
 		Milano_Common_File::writeFile($composerDir . '/composer.json', $composer);
 	}
+
+	public static function __callStatic($method, $args)
+    {
+        $instance = App::get(static::getName());
+
+        if ( ! method_exists($instance, $method)) 
+        {
+            throw new XenForo_Exception(get_called_class() . ' does not implement ' . $method . ' method.');
+        }
+
+        return call_user_func_array(array($instance, $method), $args);
+    }
 }
