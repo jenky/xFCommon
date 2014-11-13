@@ -189,7 +189,7 @@ class Milano_Common_Install
 	// DEPRECATED soon
 	public static function checkXfVersion($versionId, $versionString)
 	{
-		return static::checkXenForoVersion($versionId, $versionString)
+		return static::checkXenForoVersion($versionId, $versionString);
 	}
 
 	public static function checkXenForoVersion($versionId, $versionString)
