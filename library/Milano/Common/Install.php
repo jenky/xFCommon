@@ -200,6 +200,24 @@ class Milano_Common_Install
 		}
 	}
 
+    public static function dump(Exception $e, $exit = true)
+    {
+        if (XenForo_Application::debugMode())
+        {
+            echo static::_getDb()->getProfiler()
+                ->getLastQueryProfile()
+                ->getQuery();
+
+            echo '<br>';
+            echo '<font color="#cc0000">' . $e->getMessage() . '</font>';
+            
+            if ($exit)
+            {
+                die;
+            }
+        }
+    }
+
 	public static final function isAddOnInstalled($addOnId)
     {
         $addOnModel = XenForo_Model::create('XenForo_Model_AddOn');
@@ -214,7 +232,10 @@ class Milano_Common_Install
 		{
 			return static::_getDb()->fetchRow('SHOW COLUMNS FROM ' . $table . ' WHERE Field = ?', $field) ? true : false;
 		}
-		catch (Zend_Db_Exception $e) {}
+		catch (Zend_Db_Exception $e) 
+        {
+            return static::dump($e);
+        }
 	}
 	
 	public static final function isTableExists($table)
@@ -223,7 +244,10 @@ class Milano_Common_Install
 		{
 			return static::_getDb()->fetchRow('SHOW TABLES LIKE \'' . $table . '\'') ? true : false; 
 		}
-		catch (Zend_Db_Exception $e) {}
+		catch (Zend_Db_Exception $e) 
+        {
+            return static::dump($e);
+        }
 	}
 
 	public static function checkDependencies(array $dependencies)
@@ -274,7 +298,10 @@ class Milano_Common_Install
 				{
 					static::_getDb()->query($sql);
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
             }
         }
     }
@@ -297,7 +324,10 @@ class Milano_Common_Install
 				{
 					static::_getDb()->query($sql);
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
             }
         }
     }
@@ -329,7 +359,10 @@ class Milano_Common_Install
 					static::_getDb()->query($sql);
 					//static::_getDb()->query("CREATE TABLE IF NOT EXISTS `" . $tableName . "` (" . $tableSql . ") ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}
 			else 
 			{
@@ -347,7 +380,10 @@ class Milano_Common_Install
 			{
 				static::_getDb()->query("DROP TABLE IF EXISTS `" . $tableName . "` "); 
 			}
-			catch (Zend_Db_Exception $e) {}
+			catch (Zend_Db_Exception $e) 
+            {
+                return static::dump($e);
+            }
 		}
 	}
 
@@ -390,7 +426,10 @@ class Milano_Common_Install
 				{
 					static::_getDb()->query($sql);
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}
 		}
 	}
@@ -409,7 +448,10 @@ class Milano_Common_Install
 				{
 					static::_getDb()->query("ALTER TABLE " . $table . " DROP " . $field);  
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}
 		}
 		elseif ($action == 'add')
@@ -421,7 +463,10 @@ class Milano_Common_Install
 					$afterColumn = !empty($after) ? " AFTER " . $after : '';
 					static::_getDb()->query("ALTER TABLE " . $table . " ADD " . $field . " " . $attr . $afterColumn);
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}            
 		}
 		elseif ($action == 'change')
@@ -432,7 +477,10 @@ class Milano_Common_Install
 				{
 					static::_getDb()->query("ALTER TABLE " . $table . " CHANGE " . $field . "  " . $field . " " . $attr);
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}            
 		}
 	}
@@ -524,7 +572,10 @@ class Milano_Common_Install
 					{
 						static::_getDb()->query("ALTER TABLE " . $tableName . " DROP " . $rowName); 
 					}
-					catch (Zend_Db_Exception $e) {}
+					catch (Zend_Db_Exception $e) 
+                    {
+                        return static::dump($e);
+                    }
 				}
 			}
 		}
@@ -583,7 +634,10 @@ class Milano_Common_Install
 						". (empty($oldKey) ? "": "DROP PRIMARY KEY, ") ."
 						ADD PRIMARY KEY(".implode(",", $primaryKey).")");
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}
 		}
 	}
@@ -624,7 +678,10 @@ class Milano_Common_Install
 						". (!isset($oldKeys[$keyName]) ? "": "DROP INDEX `" . $keyName . "`, ") ."
 						ADD UNIQUE `" . $keyName . "` (" . implode(",", $keyColumns) . ")");
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}
 		}
 	}
@@ -642,7 +699,10 @@ class Milano_Common_Install
 						". (!isset($oldKeys[$keyName]) ? "": "DROP INDEX `" . $keyName . "`, ") ."
 						ADD INDEX `" . $keyName . "` (" . implode(",", $keyColumns) . ")");
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}
 		}
 	}
@@ -667,7 +727,10 @@ class Milano_Common_Install
 						) ON DUPLICATE KEY UPDATE
 							addon_id = '" . $addOnId . "'");
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 				static::insertContentTypeFields(array($contentType => $contentTypeParams['fields']));
 			}
 		}
@@ -693,7 +756,10 @@ class Milano_Common_Install
 					) ON DUPLICATE KEY UPDATE
 						field_value = '" . $fieldValue . "'");
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}
 		}
 	}
@@ -710,7 +776,10 @@ class Milano_Common_Install
 					static::_getDb()->query("DELETE FROM xf_content_type WHERE content_type = '" . $contentType . "' AND addon_id = '" . $addOnId . "'");
 					static::_getDb()->query("DELETE FROM xf_content_type_field WHERE content_type = '" . $contentType . "'");
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}
 		}
 		XenForo_Model::create('XenForo_Model_ContentType')->rebuildContentTypeCache();
@@ -727,7 +796,10 @@ class Milano_Common_Install
 					static::_getDb()->query("DELETE FROM xf_content_type_field WHERE content_type = '" . $contentType . "' 
 						AND field_name = '" . $fieldName . "' AND field_value = '" . $fieldValue . "'");
 				}
-				catch (Zend_Db_Exception $e) {}
+				catch (Zend_Db_Exception $e) 
+                {
+                    return static::dump($e);
+                }
 			}
 		}
 	}
