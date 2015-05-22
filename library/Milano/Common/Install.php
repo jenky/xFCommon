@@ -25,7 +25,7 @@ class Milano_Common_Install
 	{
 		if (version_compare(PHP_VERSION, '5.3.0', '<'))
 		{
-    		throw new XenForo_Exception('You need at least PHP version 5.3.0 to install this add-on. Your version: ' . PHP_VERSION, true);
+			throw new XenForo_Exception('You need at least PHP version 5.3.0 to install this add-on. Your version: ' . PHP_VERSION, true);
 		}
 		
 		static::$existingAddOn = $existingAddOn;
@@ -62,12 +62,12 @@ class Milano_Common_Install
 		static::_getDb()->beginTransaction();
 		
 
-        if (!empty(static::$_dependencies)) 
-        {
-            static::checkDependencies(static::$_dependencies);
-        }
+		if (!empty(static::$_dependencies)) 
+		{
+			static::checkDependencies(static::$_dependencies);
+		}
 
-        static::_preInstall();
+		static::_preInstall();
 
 		$fieldNameChanges = static::_getInstallFieldNameChanges();
 		if (!empty($fieldNameChanges))
@@ -200,31 +200,31 @@ class Milano_Common_Install
 		}
 	}
 
-    public static function dump(Exception $e, $exit = true)
-    {
-        if (XenForo_Application::debugMode())
-        {
-            echo static::_getDb()->getProfiler()
-                ->getLastQueryProfile()
-                ->getQuery();
+	public static function dump(Exception $e, $exit = true)
+	{
+		if (XenForo_Application::debugMode())
+		{
+			echo static::_getDb()->getProfiler()
+				->getLastQueryProfile()
+				->getQuery();
 
-            echo '<br>';
-            echo '<font color="#cc0000">' . $e->getMessage() . '</font>';
-            
-            if ($exit)
-            {
-                die;
-            }
-        }
-    }
+			echo '<br>';
+			echo '<font color="#cc0000">' . $e->getMessage() . '</font>';
+			
+			if ($exit)
+			{
+				die;
+			}
+		}
+	}
 
 	public static final function isAddOnInstalled($addOnId)
-    {
-        $addOnModel = XenForo_Model::create('XenForo_Model_AddOn');
-        $addOn = $addOnModel->getAddOnById($addOnId);
+	{
+		$addOnModel = XenForo_Model::create('XenForo_Model_AddOn');
+		$addOn = $addOnModel->getAddOnById($addOnId);
 
-        return $addOn;
-    }
+		return $addOn;
+	}
 
 	public static final function isFieldExists($table, $field)
 	{
@@ -233,9 +233,9 @@ class Milano_Common_Install
 			return static::_getDb()->fetchRow('SHOW COLUMNS FROM ' . $table . ' WHERE Field = ?', $field) ? true : false;
 		}
 		catch (Zend_Db_Exception $e) 
-        {
-            return static::dump($e);
-        }
+		{
+			return static::dump($e);
+		}
 	}
 	
 	public static final function isTableExists($table)
@@ -245,92 +245,92 @@ class Milano_Common_Install
 			return static::_getDb()->fetchRow('SHOW TABLES LIKE \'' . $table . '\'') ? true : false; 
 		}
 		catch (Zend_Db_Exception $e) 
-        {
-            return static::dump($e);
-        }
+		{
+			return static::dump($e);
+		}
 	}
 
 	public static function checkDependencies(array $dependencies)
-    {
-        $notInstalled = array();
-        $outOfDate = array();
-        foreach ($dependencies as $addOnId => $versionId) 
-        {
-            $addOn = static::isAddOnInstalled($addOnId);
-            if (!$addOn) 
-            {
-                $notInstalled[] = $addOnId;
-            }
-            if ($addOn['version_id'] < $versionId) 
-            {
-                $outOfDate[] = $addOnId;
-            }
-        }
-        if ($notInstalled) 
-        {
-            throw new XenForo_Exception('The following required add-ons need to be installed: ' . implode(',', $notInstalled), true);
-        }
-        if ($outOfDate) 
-        {
-            throw new XenForo_Exception('The following required add-ons need to be updated: ' . implode(',', $outOfDate), true);
-        }
-    }
+	{
+		$notInstalled = array();
+		$outOfDate = array();
+		foreach ($dependencies as $addOnId => $versionId) 
+		{
+			$addOn = static::isAddOnInstalled($addOnId);
+			if (!$addOn) 
+			{
+				$notInstalled[] = $addOnId;
+			}
+			if ($addOn['version_id'] < $versionId) 
+			{
+				$outOfDate[] = $addOnId;
+			}
+		}
+		if ($notInstalled) 
+		{
+			throw new XenForo_Exception('The following required add-ons need to be installed: ' . implode(',', $notInstalled), true);
+		}
+		if ($outOfDate) 
+		{
+			throw new XenForo_Exception('The following required add-ons need to be updated: ' . implode(',', $outOfDate), true);
+		}
+	}
 
 	public static function makeFieldChanges(array $fieldChanges)
-    {
-        foreach ($fieldChanges as $tableName => $tableSql) 
-        {
-            if (static::isTableExists($tableName)) 
-            {
-                $describeTable = static::_getDb()->describeTable($tableName);
-                $keys = array_keys($describeTable);
-                $sql = "ALTER TABLE `" . $tableName . "` ";
-                $sqlAdd = array();
-                foreach ($tableSql as $oldFieldName => $newField) 
-                {
-                    if (in_array($oldFieldName, $keys)) 
-                    {
-                        $sqlAdd[] = "CHANGE `" . $oldFieldName . "` " . $newField;
-                    }
-                }
-                $sql .= implode(", ", $sqlAdd);
-                try
+	{
+		foreach ($fieldChanges as $tableName => $tableSql) 
+		{
+			if (static::isTableExists($tableName)) 
+			{
+				$describeTable = static::_getDb()->describeTable($tableName);
+				$keys = array_keys($describeTable);
+				$sql = "ALTER TABLE `" . $tableName . "` ";
+				$sqlAdd = array();
+				foreach ($tableSql as $oldFieldName => $newField) 
+				{
+					if (in_array($oldFieldName, $keys)) 
+					{
+						$sqlAdd[] = "CHANGE `" . $oldFieldName . "` " . $newField;
+					}
+				}
+				$sql .= implode(", ", $sqlAdd);
+				try
 				{
 					static::_getDb()->query($sql);
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
-            }
-        }
-    }
+				{
+					return static::dump($e);
+				}
+			}
+		}
+	}
 
-    public static function renameTables(array $tableNameChanges)
-    {
-        foreach ($tableNameChanges as $oldTableName => $newTableName) 
-        {
-            if (static::isTableExists($oldTableName)) 
-            {
-                if (!static::isTableExists($newTableName)) 
-                {
-                    $sql = "RENAME TABLE `" . $oldTableName . "` TO `" . $newTableName . "`";
-                } 
-                else 
-                {
-                    $sql = "DROP TABLE `" . $oldTableName . "`";
-                }
-                try
+	public static function renameTables(array $tableNameChanges)
+	{
+		foreach ($tableNameChanges as $oldTableName => $newTableName) 
+		{
+			if (static::isTableExists($oldTableName)) 
+			{
+				if (!static::isTableExists($newTableName)) 
+				{
+					$sql = "RENAME TABLE `" . $oldTableName . "` TO `" . $newTableName . "`";
+				} 
+				else 
+				{
+					$sql = "DROP TABLE `" . $oldTableName . "`";
+				}
+				try
 				{
 					static::_getDb()->query($sql);
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
-            }
-        }
-    }
+				{
+					return static::dump($e);
+				}
+			}
+		}
+	}
 
 	public static function createTables(array $tables)
 	{
@@ -339,20 +339,20 @@ class Milano_Common_Install
 			if (!static::isTableExists($tableName))
 			{
 				$sql = "CREATE TABLE IF NOT EXISTS `" . $tableName . "` (";
-                $sqlRows = array();
-                foreach ($tableSql as $rowName => $rowParams) 
-                {
-                	if ($rowName !== 'EXTRA')
-                	{
-                    	$sqlRows[] = "`" . $rowName . "` " . $rowParams;
-                	}
-                }
-                if (!empty($tableSql['EXTRA']))
-                {
-                	$sqlRows[] = $tableSql['EXTRA'];
-                }
-                $sql .= implode(",", $sqlRows);
-                $sql .= ") ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci";
+				$sqlRows = array();
+				foreach ($tableSql as $rowName => $rowParams) 
+				{
+					if ($rowName !== 'EXTRA')
+					{
+						$sqlRows[] = "`" . $rowName . "` " . $rowParams;
+					}
+				}
+				if (!empty($tableSql['EXTRA']))
+				{
+					$sqlRows[] = $tableSql['EXTRA'];
+				}
+				$sql .= implode(",", $sqlRows);
+				$sql .= ") ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci";
 
 				try
 				{
@@ -360,15 +360,15 @@ class Milano_Common_Install
 					//static::_getDb()->query("CREATE TABLE IF NOT EXISTS `" . $tableName . "` (" . $tableSql . ") ENGINE = InnoDB CHARACTER SET utf8 COLLATE utf8_general_ci");
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}
 			else 
 			{
-                $tableChanges = array($tableName => $tableSql);
-                static::alterTables($tableChanges);
-            }
+				$tableChanges = array($tableName => $tableSql);
+				static::alterTables($tableChanges);
+			}
 		}
 	}
 
@@ -381,9 +381,9 @@ class Milano_Common_Install
 				static::_getDb()->query("DROP TABLE IF EXISTS `" . $tableName . "` "); 
 			}
 			catch (Zend_Db_Exception $e) 
-            {
-                return static::dump($e);
-            }
+			{
+				return static::dump($e);
+			}
 		}
 	}
 
@@ -399,9 +399,9 @@ class Milano_Common_Install
 				$sql = "ALTER IGNORE TABLE `".$tableName."` ";
 				$sqlQuery = array();
 				if (isset($tableSql['EXTRA']))
-                {
-                	unset($tableSql['EXTRA']);
-                }
+				{
+					unset($tableSql['EXTRA']);
+				}
 				foreach ($tableSql as $rowName => $rowParams)
 				{
 					if (strpos($rowParams, 'PRIMARY KEY') !== false)
@@ -427,9 +427,9 @@ class Milano_Common_Install
 					static::_getDb()->query($sql);
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}
 		}
 	}
@@ -449,9 +449,9 @@ class Milano_Common_Install
 					static::_getDb()->query("ALTER TABLE " . $table . " DROP " . $field);  
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}
 		}
 		elseif ($action == 'add')
@@ -464,9 +464,9 @@ class Milano_Common_Install
 					static::_getDb()->query("ALTER TABLE " . $table . " ADD " . $field . " " . $attr . $afterColumn);
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}            
 		}
 		elseif ($action == 'change')
@@ -478,85 +478,85 @@ class Milano_Common_Install
 					static::_getDb()->query("ALTER TABLE " . $table . " CHANGE " . $field . "  " . $field . " " . $attr);
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}            
 		}
 	}
 
 	public static function alterEnumValues(array $enumValues, $reverse = false)
-    {
-        /*foreach ($enumValues as $tableName => $fields) 
-        {
-            if (static::isTableExists($tableName)) 
-            {
-                $table = static::_getDb()->describeTable($tableName);
-                $enums = array();
-                foreach ($fields as $fieldName => $fieldEnums) 
-                {
-                    if (!isset($table[$fieldName])) 
-                    {
-                        continue;
-                    }
-                    preg_match('/^enum\((.*)\)$/', $table[$fieldName]['DATA_TYPE'], $matches);
-                    foreach (explode(',', $matches[1]) as $value) 
-                    {
-                        $enums[] = trim($value, "'");
-                    }
-                    $newEnums = $enums;
-                    if (isset($fieldEnums['add'])) 
-                    {
-                        if (!$reverse) {
-                            foreach ($fieldEnums['add'] as $fieldEnum) 
-                            {
-                                $newEnums[] = $fieldEnum;
-                            }
-                        } 
-                        else 
-                        {
-                            foreach ($fieldEnums['add'] as $fieldEnum) 
-                            {
-                                static::_getDb()->delete($tableName, $fieldName . ' = \'' . $fieldEnum . '\'');
-                            }
-                            $newEnums = array_diff($newEnums, $fieldEnums['add']);
-                        }
-                        $newEnums = array_unique($newEnums);
-                    }
-                    if (isset($fieldEnums['remove'])) 
-                    {
-                        if (!$reverse) 
-                        {
-                            foreach ($fieldEnums['remove'] as $fieldEnum) 
-                            {
-                                static::_getDb()->delete($tableName, $fieldName . ' = \'' . $fieldEnum . '\'');
-                            }
-                            $newEnums = array_diff($newEnums, $fieldEnums['remove']);
-                        } 
-                        else 
-                        {
-                            foreach ($fieldEnums['remove'] as $fieldEnum) 
-                            {
-                                $newEnums[] = $fieldEnum;
-                            }
-                        }
-                        $newEnums = array_unique($newEnums);
-                    }
-                    sort($enums);
-                    sort($newEnums);
-                    if ($enums != $newEnums) 
-                    {
-                        foreach ($newEnums as &$value) 
-                        {
-                            $value = '\'' . $value . '\'';
-                        }
-                        $table[$fieldName]['DATA_TYPE'] = 'enum(' . implode(',', $newEnums) . ')';
-                        static::alterTable($table[$fieldName]);
-                    }
-                }
-            }
-        }*/
-    }
+	{
+		/*foreach ($enumValues as $tableName => $fields) 
+		{
+			if (static::isTableExists($tableName)) 
+			{
+				$table = static::_getDb()->describeTable($tableName);
+				$enums = array();
+				foreach ($fields as $fieldName => $fieldEnums) 
+				{
+					if (!isset($table[$fieldName])) 
+					{
+						continue;
+					}
+					preg_match('/^enum\((.*)\)$/', $table[$fieldName]['DATA_TYPE'], $matches);
+					foreach (explode(',', $matches[1]) as $value) 
+					{
+						$enums[] = trim($value, "'");
+					}
+					$newEnums = $enums;
+					if (isset($fieldEnums['add'])) 
+					{
+						if (!$reverse) {
+							foreach ($fieldEnums['add'] as $fieldEnum) 
+							{
+								$newEnums[] = $fieldEnum;
+							}
+						} 
+						else 
+						{
+							foreach ($fieldEnums['add'] as $fieldEnum) 
+							{
+								static::_getDb()->delete($tableName, $fieldName . ' = \'' . $fieldEnum . '\'');
+							}
+							$newEnums = array_diff($newEnums, $fieldEnums['add']);
+						}
+						$newEnums = array_unique($newEnums);
+					}
+					if (isset($fieldEnums['remove'])) 
+					{
+						if (!$reverse) 
+						{
+							foreach ($fieldEnums['remove'] as $fieldEnum) 
+							{
+								static::_getDb()->delete($tableName, $fieldName . ' = \'' . $fieldEnum . '\'');
+							}
+							$newEnums = array_diff($newEnums, $fieldEnums['remove']);
+						} 
+						else 
+						{
+							foreach ($fieldEnums['remove'] as $fieldEnum) 
+							{
+								$newEnums[] = $fieldEnum;
+							}
+						}
+						$newEnums = array_unique($newEnums);
+					}
+					sort($enums);
+					sort($newEnums);
+					if ($enums != $newEnums) 
+					{
+						foreach ($newEnums as &$value) 
+						{
+							$value = '\'' . $value . '\'';
+						}
+						$table[$fieldName]['DATA_TYPE'] = 'enum(' . implode(',', $newEnums) . ')';
+						static::alterTable($table[$fieldName]);
+					}
+				}
+			}
+		}*/
+	}
 
 	public static function dropTablePatches(array $tables)
 	{
@@ -573,9 +573,9 @@ class Milano_Common_Install
 						static::_getDb()->query("ALTER TABLE " . $tableName . " DROP " . $rowName); 
 					}
 					catch (Zend_Db_Exception $e) 
-                    {
-                        return static::dump($e);
-                    }
+					{
+						return static::dump($e);
+					}
 				}
 			}
 		}
@@ -635,9 +635,9 @@ class Milano_Common_Install
 						ADD PRIMARY KEY(".implode(",", $primaryKey).")");
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}
 		}
 	}
@@ -653,14 +653,14 @@ class Milano_Common_Install
 
 			foreach ($indexes as $index) 
 			{
-	            if (!isset($keys[$index['Key_name']])) 
-	            {
-	                    $keys[$index['Key_name']] = $index;
-	            }
-	            
-	            $keys[$index['Key_name']]['Column_names'][] = $index['Column_name'];
-	        }
-	    }
+				if (!isset($keys[$index['Key_name']])) 
+				{
+						$keys[$index['Key_name']] = $index;
+				}
+				
+				$keys[$index['Key_name']]['Column_names'][] = $index['Column_name'];
+			}
+		}
 
 		return $keys;
 	}
@@ -679,9 +679,9 @@ class Milano_Common_Install
 						ADD UNIQUE `" . $keyName . "` (" . implode(",", $keyColumns) . ")");
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}
 		}
 	}
@@ -700,9 +700,9 @@ class Milano_Common_Install
 						ADD INDEX `" . $keyName . "` (" . implode(",", $keyColumns) . ")");
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}
 		}
 	}
@@ -728,9 +728,9 @@ class Milano_Common_Install
 							addon_id = '" . $addOnId . "'");
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 				static::insertContentTypeFields(array($contentType => $contentTypeParams['fields']));
 			}
 		}
@@ -757,9 +757,9 @@ class Milano_Common_Install
 						field_value = '" . $fieldValue . "'");
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}
 		}
 	}
@@ -777,9 +777,9 @@ class Milano_Common_Install
 					static::_getDb()->query("DELETE FROM xf_content_type_field WHERE content_type = '" . $contentType . "'");
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}
 		}
 		XenForo_Model::create('XenForo_Model_ContentType')->rebuildContentTypeCache();
@@ -797,9 +797,9 @@ class Milano_Common_Install
 						AND field_name = '" . $fieldName . "' AND field_value = '" . $fieldValue . "'");
 				}
 				catch (Zend_Db_Exception $e) 
-                {
-                    return static::dump($e);
-                }
+				{
+					return static::dump($e);
+				}
 			}
 		}
 	}
@@ -825,9 +825,9 @@ class Milano_Common_Install
 	}
 
 	protected static function _getDependencies()
-    {
-        return array();
-    } 
+	{
+		return array();
+	} 
 
 	protected static function _getTables()
 	{
